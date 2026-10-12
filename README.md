@@ -83,6 +83,7 @@ python src/experiments/field_v2.py katanga       # main runs + 24-member choice 
 python src/experiments/field_v2.py cuvette       # tesseroids, ensemble, joint inversion
 python src/experiments/katanga_validation.py     # sub-districts vs USGS tonnages
 python src/experiments/cuvette_analysis.py
+python src/experiments/profiles.py               # depth sections along the arc / across the basin
 python src/experiments/field_figures.py
 ```
 
@@ -98,6 +99,8 @@ No data are stored in this repository. All inputs are open, and their sources an
 are listed in `data/README.md`. Well information for the Cuvette Centrale is used only as
 published depth bounds (Kadima et al., 2011); well coordinates are not public.
 
-## Citation
+## Licence and citation
 
-Please cite the manuscript once published. Until then, cite this repository.
+The code is released under the MIT licence (see `LICENSE`). Data used by the scripts keep
+their own licences, listed in `data/README.md`. Please cite the manuscript once it is
+published; until then, cite this repository.
