@@ -1,0 +1,53 @@
+name: drc-deep
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  # LaTeX engine (self-contained, downloads packages on demand into cache/tectonic)
+  - tectonic
+  # core numerics
+  - numpy
+  - scipy
+  - pandas
+  - matplotlib
+  - jupyterlab
+  # geospatial / open geodata
+  - gdal
+  - rasterio
+  - geopandas
+  - shapely
+  - pyproj
+  - xarray
+  - rioxarray
+  - netcdf4
+  - pystac-client
+  - planetary-computer
+  - stackstac
+  - osmnx
+  # geophysical inversion
+  - simpeg
+  - discretize
+  - verde
+  - harmonica
+  - pooch
+  - ensaio
+  - pyshtools
+  # graph theory
+  - networkx
+  - python-igraph
+  # AI / ML / probabilistic
+  - scikit-learn
+  - xgboost
+  - pytorch-cpu
+  - pymc
+  - arviz
+  # historical documents (PDF / OCR / text)
+  - pymupdf
+  - pdfplumber
+  - pytesseract
+  - tesseract
+  - requests
+  - beautifulsoup4
+  - tqdm
+  - pytest
+  - pip
