@@ -137,7 +137,7 @@ def fig_fields():
 
 # ----------------------------------------------------------------------- spectra
 def fig_spectra():
-    fig, axs = plt.subplots(1, 3, figsize=(DOUBLE, 55 * MM), sharey=False)
+    fig, axs = plt.subplots(1, 3, figsize=(DOUBLE, 68 * MM), sharey=False)
     for ax, (name, c) in zip(axs, spec["curves"].items()):
         k, lnp = np.array(c["k"]), np.array(c["lnp"])
         f = spec["fits"][name]
@@ -154,7 +154,7 @@ def fig_spectra():
         ax.set_title(f"W{idx} {name.split(' (')[0]}, coverage {100 * f['coverage']:.0f}%", loc="left")
         ax.set_xlabel("Wavenumber k (rad/km)")
         ax.grid(color=GRID, lw=0.5)
-        ax.legend(frameon=False, loc="lower left")
+        ax.legend(frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.3), fontsize=6.5)
         for s in ("top", "right"):
             ax.spines[s].set_visible(False)
     axs[0].set_ylabel("ln P(k)")
@@ -304,13 +304,13 @@ def tables():
     rows = [f"D{int(r.district)} & {r.province} & {r.n_sites} & {r.lon:.2f}, {r.lat:.2f} & {r.dominant} "
             f"({100 * r.dominant_share:.0f}\\%) & {r.density:.2f} \\\\" for _, r in top.iterrows()]
     (GEN / "tab_districts.tex").write_text(
-        "\\begin{table}[t]\n\\centering\\small\n\\caption{The ten largest mining districts found as "
+        "\\begin{table*}[t]\n\\centering\\small\n\\caption{The ten largest mining districts found as "
         f"Louvain communities of the occurrence graph ({gstats['n_nodes']} nodes, {gstats['n_edges']} "
         f"edges within {gstats['link_km']:.0f}~km; modularity {gstats['modularity']:.2f}).}}"
         "\\label{tab:districts}\n"
         "\\begin{tabular*}{\\tblwidth}{@{\\extracolsep{\\fill}}llrlll@{}}\n\\toprule\n"
         "District & Province & Sites & Centre (°E, °N) & Dominant & Density \\\\\n\\midrule\n"
-        .replace("°", "$^\\circ$") + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular*}\n\\end{table}\n",
+        .replace("°", "$^\\circ$") + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular*}\n\\end{table*}\n",
         encoding="utf-8")
 
     methods = list(dict.fromkeys(cv.method))
