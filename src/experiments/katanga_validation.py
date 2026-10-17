@@ -41,9 +41,9 @@ plt.rcParams.update({"font.size": 8, "axes.titlesize": 8, "axes.labelsize": 8, "
 MM = 1 / 25.4
 
 
-def load_runs():
+def load_runs(name="katanga"):
     runs = []
-    for p in sorted((RES / "katanga_runs").glob("*.npz")):
+    for p in sorted((RES / f"{name}_runs").glob("*.npz")):
         z = np.load(p)
         runs.append(dict(meta=json.loads(str(z["meta"])), slices=z["slices"], map=z["map"],
                          mesh=z["mesh"], lon0=float(z["lon0"]), lat0=float(z["lat0"])))

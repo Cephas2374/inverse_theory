@@ -83,15 +83,16 @@ def slice_masses(S, mesh):
     return (np.stack(out, 1) * mesh.cell_volume * 1000 / 1e9).astype(np.float32)
 
 
-def katanga(quick=False):
-    case = CASES["katanga"]
-    rd = OUT / "katanga_runs"
+def katanga(quick=False, name="katanga"):
+    """Copperbelt endowment runs for name = katanga or zambia (same design)."""
+    case = CASES[name]
+    rd = OUT / f"{name}_runs"
     rd.mkdir(parents=True, exist_ok=True)
     G_cache, graph_cache, rho_n = {}, {}, {}
     n_main, n_ens_s, n_ens = (5, 3, 3) if quick else (40, 10, 24)
 
     def setup(model, h):
-        ds = gravity_data("katanga", model, h)
+        ds = gravity_data(name, model, h)
         key = (model, h)
         if key not in rho_n:
             rho_n[key] = nettleton(ds, case, case["regional_km"])[0]
@@ -125,14 +126,15 @@ def katanga(quick=False):
         return meta
 
     metas = []
-    print("Katanga main runs", flush=True)
+    st, dp = case["strike"], case["dip"]
+    print(f"{name} main runs", flush=True)
     for cfg in "ABG":
-        metas.append(run(f"main_{cfg}", "xgm2019e", None, "nettleton", 150.0, cfg, 120.0, 30.0, n_main, 1))
-    metas.append(run("eigen_B", "eigen6c4", None, "nettleton", 150.0, "B", 120.0, 30.0, n_main, 2))
-    metas.append(run("h6_B", "xgm2019e", 6000.0, "nettleton", 150.0, "B", 120.0, 30.0, n_main, 3))
-    metas.append(run("h6_B_2670", "xgm2019e", 6000.0, RHO_TOPO, 150.0, "B", 120.0, 30.0, n_main, 4))
-    metas.append(run("rho2670_B", "xgm2019e", None, RHO_TOPO, 150.0, "B", 120.0, 30.0, n_main, 5))
-    print("Katanga choice ensemble", flush=True)
+        metas.append(run(f"main_{cfg}", "xgm2019e", None, "nettleton", 150.0, cfg, st, dp, n_main, 1))
+    metas.append(run("eigen_B", "eigen6c4", None, "nettleton", 150.0, "B", st, dp, n_main, 2))
+    metas.append(run("h6_B", "xgm2019e", 6000.0, "nettleton", 150.0, "B", st, dp, n_main, 3))
+    metas.append(run("h6_B_2670", "xgm2019e", 6000.0, RHO_TOPO, 150.0, "B", st, dp, n_main, 4))
+    metas.append(run("rho2670_B", "xgm2019e", None, RHO_TOPO, 150.0, "B", st, dp, n_main, 5))
+    print(f"{name} choice ensemble", flush=True)
     rng = np.random.default_rng(2026)
     for i in range(n_ens):
         model = MODELS[rng.integers(2)]
@@ -142,10 +144,10 @@ def katanga(quick=False):
         rho = float(rng.uniform(lo, hi))
         sigma = float(rng.uniform(100, 300))
         cfg = "AB"[rng.integers(2)]
-        strike, dip = float(rng.normal(120, 15)), float(rng.uniform(15, 60))
+        strike, dip = float(rng.normal(st, 15)), float(rng.uniform(15, 60))
         metas.append(run(f"ens_{i:02d}", model, h, rho, sigma, cfg, strike, dip, n_ens_s, 100 + i))
     nett = {f"{m}_{'auto' if h is None else int(h)}": v for (m, h), v in rho_n.items()}
-    (OUT / "katanga_runs.json").write_text(json.dumps({"runs": metas, "nettleton": nett}, indent=1))
+    (OUT / f"{name}_runs.json").write_text(json.dumps({"runs": metas, "nettleton": nett}, indent=1))
 
 
 # ================================================================================ Cuvette
@@ -270,7 +272,7 @@ def cuvette(quick=False):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("area", choices=["katanga", "cuvette"])
+    ap.add_argument("area", choices=["katanga", "zambia", "cuvette"])
     ap.add_argument("--quick", action="store_true")
     args = ap.parse_args()
     global OUT, CACHE
@@ -279,7 +281,10 @@ def main():
         CACHE = OUT.parent / "field_v2" / "cache"
     for p in (OUT, CACHE):
         p.mkdir(parents=True, exist_ok=True)
-    katanga(args.quick) if args.area == "katanga" else cuvette(args.quick)
+    if args.area == "cuvette":
+        cuvette(args.quick)
+    else:
+        katanga(args.quick, args.area)
     print("done", args.area, flush=True)
 
 

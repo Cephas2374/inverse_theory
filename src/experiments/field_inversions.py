@@ -55,6 +55,17 @@ CASES = {
         strike=120.0, dip=30.0,               # Lufilian grain, thrusts dipping SSW
         slices=[(0, 1000), (1000, 2000), (2000, 3000), (3000, 5000), (5000, 8000)],
     ),
+    "zambia": dict(                          # Zambian Copperbelt (validation of the Katanga result)
+        window=(26.8, 29.8, -14.6, -11.6),
+        pad=2.0, step=0.1, dec=1,
+        dx=5000.0, dz=1000.0, nz=8,
+        regional_km=150.0,
+        configs={"A": dict(name="Tikhonov", graph=False, p_s=2, p_r=2, alpha_s=1e-3),
+                 "B": dict(name="l2 fabric graph", graph=True, p_s=2, p_r=2, alpha_s=1e-3),
+                 "G": dict(name="Sparse graph", graph=True, p_s=0, p_r=1, alpha_s=1.0)},
+        strike=135.0, dip=30.0,               # Kafue anticline trend
+        slices=[(0, 1000), (1000, 2000), (2000, 3000), (3000, 5000), (5000, 8000)],
+    ),
     "cuvette": dict(
         window=(16.5, 25.5, -5.0, 3.0),
         pad=3.0, step=0.1, dec=2,
@@ -94,7 +105,7 @@ def bouguer_residual(case, model="xgm2019e", h_obs=None):
     the highest terrain of the window. Returns the grids and the observation height."""
     w, e, s, n = case["window"]
     pad, step = case["pad"], case["step"]
-    W, E, S, N = w - pad, e + pad, max(s - pad, -13.95), min(n + pad, 5.95)
+    W, E, S, N = w - pad, e + pad, max(s - pad, -16.95), min(n + pad, 5.95)
     lon0, lat0 = 0.5 * (w + e), 0.5 * (s + n)
     xgm = xr.load_dataset(PROC / f"{model}_drc.nc").gravity_disturbance
     lon = np.arange(W, E + 1e-9, step)

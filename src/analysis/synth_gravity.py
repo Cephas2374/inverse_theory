@@ -21,7 +21,7 @@ MODEL = sys.argv[1] if len(sys.argv) > 1 else "XGM2019e_2159"
 SRC = ROOT / "data" / "raw" / "gravity_sh" / f"{MODEL}.zip"
 OUT = ROOT / "data" / "processed" / ("xgm2019e_drc.nc" if MODEL.startswith("XGM") else
                                       f"{MODEL.lower().replace('-', '')}_drc.nc")
-W, S, E, N = 11.5, -14.0, 32.0, 6.0
+W, S, E, N = 11.5, -17.0, 32.0, 6.0   # south to 17 S for the Zambian Copperbelt
 A_WGS84, F_WGS84 = 6378137.0, 1 / 298.257223563
 OMEGA = 7.292115e-5
 
