@@ -146,8 +146,15 @@ def figure(out, r0, mesh, CLON, CLAT, sub, z, tracts, kv, k_ex, z_ex):
     ax.contour(CLON[:, 0], CLAT[0], (sub >= 0).T.astype(float), levels=[0.5], colors=INK, linewidths=0.6)
     zt = z[z.Tonnage_Mt > 0]
     ax.scatter(zt.lon, zt.lat, s=4 + 10 * np.sqrt(zt.cu_mt), facecolors="none", edgecolors=INK, linewidths=0.6)
-    for k, (lo, la) in enumerate(out["centre"]):
-        ax.text(lo + 0.12, la, str(k + 1), fontsize=7.5, weight="bold", color=INK)
+    cen = np.array(out["centre"])
+    mid = cen.mean(0)
+    for k, (lo, la) in enumerate(cen):
+        v = np.array([lo, la]) - mid
+        v = v / (np.linalg.norm(v) + 1e-9)
+        tx, ty = lo + 0.55 * v[0], la + 0.45 * v[1]
+        ax.annotate(str(k + 1), (lo, la), xytext=(tx, ty), fontsize=7.5, weight="bold", color=INK,
+                    ha="center", va="center", arrowprops=dict(arrowstyle="-", lw=0.5, color=INK),
+                    bbox=dict(boxstyle="round,pad=0.12", fc="white", ec="none", alpha=0.85))
     ax.set_xlim(26.8, 29.8)
     ax.set_ylim(-14.6, -11.6)
     ax.set_aspect("equal")
@@ -184,7 +191,7 @@ def table(out):
     for k in np.argsort(out["cu_mt"])[::-1]:
         nm = out["names"][k]
         rows.append(f"{k + 1} & {LOCALITY.get(nm, nm)} & {out['n_usgs'][k]} & {out['area_km2'][k]:.0f} & "
-                    f"{out['cu_mt'][k]:.1f} & {num(q[1, k])} ({num(q[0, k])} to {num(q[2, k])}) \\\\")
+                    f"{out['cu_mt'][k]:.1f} & {num(q[1, k])} & {num(q[0, k])} & {num(q[2, k])} \\\\")
     r = out["runs"]["main_B"]
     e = out.get("ensemble", {})
     tt = lambda v: f"${v[1] / 1e6:.2f}$ (${v[0] / 1e6:.2f}$ to ${v[2] / 1e6:.2f}$)"  # noqa: E731
@@ -196,8 +203,9 @@ def table(out):
            f"correlation with contained Cu: ${out['main_B']['spearman']:.2f}$ (permutation $p={out['main_B']['p_permutation']:.2f}$).")
     (GEN / "tab_zambia_validation.tex").write_text(
         "\\begin{table*}[t]\n\\centering\\small\n\\caption{" + cap + "}\\label{tab:zambiaval}\n"
-        "\\begin{tabular*}{\\tblwidth}{@{\\extracolsep{\\fill}}rlrrrl@{}}\n\\toprule\n"
-        "\\# & Sub-district & Dep. & Area (km$^2$) & Cu (Mt) & Excess (Gt) \\\\\n\\midrule\n"
+        "\\begin{tabular*}{\\tblwidth}{@{\\extracolsep{\\fill}}rlrrrrrr@{}}\n\\toprule\n"
+        " & & & & & \\multicolumn{3}{c}{Excess mass (Gt)} \\\\\n\\cmidrule(l){6-8}\n"
+        "\\# & Sub-district & USGS deposits & Area (km$^2$) & Cu (Mt) & P50 & P10 & P90 \\\\\n\\midrule\n"
         + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular*}\n\\end{table*}\n", encoding="utf-8")
 
 
